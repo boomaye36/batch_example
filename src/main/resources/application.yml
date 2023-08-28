@@ -24,3 +24,7 @@ spring:
   batch:
     jdbc:
       initialize-schema: ALWAYS
+
+
+
+
