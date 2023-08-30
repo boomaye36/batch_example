@@ -24,6 +24,8 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,14 +48,17 @@ public class FlatFileJobConfig {
     @Bean
     public Step flatFileStep(FlatFileItemReader<PlayerDto> playerDtoFlatFileItemReader,
                               ItemProcessorAdapter<PlayerDto, PlayerSalaryDto> playerDtoPlayerSalaryDtoItemProcessorAdapter,
-                                FlatFileItemWriter<PlayerSalaryDto> flatFileItemWriter){
+                                FlatFileItemWriter<PlayerSalaryDto> flatFileItemWriter
+                            ){
         return stepBuilderFactory.get("flatFileStep")
-                .<PlayerDto, PlayerSalaryDto> chunk(5)
+                .<PlayerDto, PlayerSalaryDto> chunk(10)
                 .reader(playerDtoFlatFileItemReader)
                 .processor(playerDtoPlayerSalaryDtoItemProcessorAdapter)
                 .writer(flatFileItemWriter)
                 .build();
     }
+
+
 
     @StepScope
     @Bean

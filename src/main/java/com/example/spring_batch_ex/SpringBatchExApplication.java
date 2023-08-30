@@ -9,6 +9,7 @@ public class SpringBatchExApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SpringBatchExApplication.class, args);
+
     }
 
 }
