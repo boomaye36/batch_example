@@ -15,6 +15,10 @@ import org.springframework.batch.core.partition.support.TaskExecutorPartitionHan
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.jta.JtaTransactionManager;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  * 단일 프로세스에서 마스터 스텝과 워크 스텝을 두고, 마스터 스텝에서 셍성해준 파티션 단위로 스텝을 병렬처리한다.

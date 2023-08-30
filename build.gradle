@@ -33,6 +33,7 @@ dependencies {
     implementation 'mysql:mysql-connector-java'
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.30'
     testRuntimeOnly 'com.h2database:h2'
+    testImplementation 'org.mockito:mockito-inline'
 }
 
 tasks.named('test') {
