@@ -46,7 +46,7 @@ public class AptDealDto{
     @XmlElement(name = "층")
     private Integer floor;
 
-    @XmlElement(name = "해제사유발생")
+    @XmlElement(name = "해제사유발생일")
     private String dealCanceledDate;
 
     @XmlElement(name = "해제여부")
