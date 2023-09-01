@@ -24,10 +24,10 @@ public class Lawd {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long lewdId;
+    private long lawdId;
 
     @Column(nullable = false)
-    private String lewdCd;
+    private String lawdCd;
 
     @Column(nullable = false)
     private String lawdDong;

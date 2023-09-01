@@ -1,6 +1,7 @@
 package com.example.spring_batch_ex.job.lawd;
 
 import com.example.spring_batch_ex.core.entity.Lawd;
+import com.example.spring_batch_ex.core.service.LawdService;
 import com.example.spring_batch_ex.job.validatior.FilePathParameterValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ import static com.example.spring_batch_ex.job.lawd.LawdFieldSetMapper.*;
 public class LawdInsertJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-
+    private final LawdService lawdService;
     @Bean
     public Job lawdInsertJob(Step lawdInsertStep){
         return jobBuilderFactory.get("lawdInsertJob")
@@ -71,8 +72,10 @@ public class LawdInsertJobConfig {
 
             @Override
             public void write(List<? extends Lawd> items) throws Exception {
-                items.forEach(System.out::println);
+                items.forEach(lawdService::upsert);
             }
         };
     }
+
+
 }
