@@ -2,6 +2,7 @@ package com.example.spring_batch_ex.job.apt;
 
 import com.example.spring_batch_ex.adapter.ApartmentApiResource;
 import com.example.spring_batch_ex.core.repository.LawdRepository;
+import com.example.spring_batch_ex.core.service.AptDealService;
 import com.example.spring_batch_ex.dto.AptDealDto;
 import com.example.spring_batch_ex.job.validatior.FilePathParameterValidator;
 import com.example.spring_batch_ex.job.validatior.LawdCdParameterValidator;
@@ -43,17 +44,18 @@ public class AptDealInsertJobConfig {
     private final StepBuilderFactory stepBuilderFactory;
     private final ApartmentApiResource apartmentApiResource;
     private final LawdRepository lawdRepository;
+    private final AptDealService aptDealService;
 
     @Bean
     public Job aptDealInsertJob(
             Step guLawdCdStep,
-            //     Step stepDealInsertStep,
-            Step contextPrintStep) {
+                Step stepDealInsertStep
+            ) {
         return jobBuilderFactory.get("aptDealInsertJob")
                 .incrementer(new RunIdIncrementer())
                 .validator(new YearMonthParameterValidator())
                 .start(guLawdCdStep)
-                .on("CONTINUABLE").to(contextPrintStep).next(guLawdCdStep)
+                .on("CONTINUABLE").to(stepDealInsertStep).next(guLawdCdStep)
                 .from(guLawdCdStep)
                 .on("*").end()
                 .end()
@@ -76,7 +78,7 @@ public class AptDealInsertJobConfig {
             ItemWriter<AptDealDto> aptDealWriter
     ) {
         return stepBuilderFactory.get("aptDealInsertStep")
-                .<AptDealDto, AptDealDto>chunk(10)
+                .<AptDealDto, AptDealDto>chunk(100)
                 .reader(aptDealDtoStaxEventItemReader)
                 .writer(aptDealWriter)
                 .build();
@@ -104,24 +106,7 @@ public class AptDealInsertJobConfig {
         return new GuLawdTasklet(lawdRepository); // ExecutionContext Step
     }
 
-    @JobScope
-    @Bean
-    public Step contextPrintStep(Tasklet contextPrintTasklet) {
-        return stepBuilderFactory.get("contextPrintStep")
-                .tasklet(contextPrintTasklet)
-                .build();
-    }
 
-    @StepScope
-    @Bean
-    public Tasklet contextPrintTasklet(
-            @Value("#{jobExecutionContext['guLawdCd']}") String guLawdCd
-    ) {
-        return ((contribution, chunkContext) -> {
-            System.out.println("[contextPrintStep] guLawdCd = " + guLawdCd);
-            return RepeatStatus.FINISHED;
-        });
-    }
 
     @StepScope
     @Bean
@@ -150,7 +135,12 @@ public class AptDealInsertJobConfig {
     @Bean
     public ItemWriter<AptDealDto> aptDealWriter() {
         return items -> {
-            items.forEach(System.out::println);
+            items.forEach(aptDealService::upsert);
+            System.out.println("================ Writing Completed ===============");
+           // items.forEach(System.out::println);
         };
     }
+
+
+
 }

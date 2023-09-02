@@ -36,9 +36,9 @@ public class AptDeal {
     private Long dealAmount;
 
     @Column(nullable = false)
-    private Integer floor;
+    private int floor;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
     private boolean dealCanceled;
 
     @Column
@@ -50,11 +50,13 @@ public class AptDeal {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public static AptDeal of(AptDealDto aptDealDto){
+    public static AptDeal of(AptDealDto aptDealDto, Apt apt){
         AptDeal aptDeal = new AptDeal();
+        aptDeal.setApt(apt);
         aptDeal.setExclusiveArea(aptDealDto.getExclusiveArea());
         aptDeal.setDealDate(aptDealDto.getDealDate());
         aptDeal.setDealAmount(aptDealDto.getDealAmount());
+        aptDeal.setFloor(aptDealDto.getFloor());
         aptDeal.setDealCanceled(aptDealDto.isDealCanceled());
         aptDeal.setDealCanceledDate(aptDealDto.getDealCanceledDate());
         return aptDeal;

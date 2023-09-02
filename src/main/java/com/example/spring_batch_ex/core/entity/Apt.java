@@ -40,7 +40,7 @@ public class Apt {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public static Apt of(AptDealDto aptDealDto){
+    public static Apt from(AptDealDto aptDealDto){
         Apt apt = new Apt();
         apt.setAptName(aptDealDto.getAptName().trim());
         apt.setJibun(aptDealDto.getJibun().trim());
