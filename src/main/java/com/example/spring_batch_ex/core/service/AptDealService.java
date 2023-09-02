@@ -5,11 +5,15 @@ import com.example.spring_batch_ex.core.entity.AptDeal;
 import com.example.spring_batch_ex.core.repository.AptDealRepository;
 import com.example.spring_batch_ex.core.repository.AptRepository;
 import com.example.spring_batch_ex.dto.AptDealDto;
+import com.example.spring_batch_ex.dto.AptDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * AptDealDto에 있는 값을 Apt, AptDeal 엔티티로 지정한다.
@@ -57,10 +61,19 @@ public class AptDealService {
     private Apt getAptOrNew(AptDealDto aptDealDto) {
         Apt apt = aptRepository.findAptByAptNameAndJibun(aptDealDto.getAptName(), aptDealDto.getJibun())
                 .orElseGet(() -> Apt.from(aptDealDto)); // 값이 존재하지 않으면 dto로부터 값을 set
+
         aptRepository.save(apt);
         return apt;
-    }
-    
 
+
+    }
+
+    public List<AptDto> findByGuLawdCdAndDealDate(String guLawdCd, LocalDate dealDate) {
+        return aptDealRepository.findByDealCanceledIsFalseAndDealDateEquals(dealDate)
+                .stream()
+                .filter(aptDeal -> aptDeal.getApt().getGuLawdCd().equals(guLawdCd))
+                .map(aptDeal -> new AptDto(aptDeal.getApt().getAptName(), aptDeal.getDealAmount()))
+                .collect(Collectors.toList());
+    }
 
 }

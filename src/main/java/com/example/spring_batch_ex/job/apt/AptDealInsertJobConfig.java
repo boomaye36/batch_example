@@ -49,13 +49,13 @@ public class AptDealInsertJobConfig {
     @Bean
     public Job aptDealInsertJob(
             Step guLawdCdStep,
-                Step stepDealInsertStep
+                Step aptDealInsertStep
             ) {
         return jobBuilderFactory.get("aptDealInsertJob")
                 .incrementer(new RunIdIncrementer())
                 .validator(new YearMonthParameterValidator())
                 .start(guLawdCdStep)
-                .on("CONTINUABLE").to(stepDealInsertStep).next(guLawdCdStep)
+                .on("CONTINUABLE").to(aptDealInsertStep).next(guLawdCdStep)
                 .from(guLawdCdStep)
                 .on("*").end()
                 .end()
@@ -73,7 +73,7 @@ public class AptDealInsertJobConfig {
 
     @JobScope
     @Bean
-    public Step stepDealInsertStep(
+    public Step aptDealInsertStep(
             StaxEventItemReader<AptDealDto> aptDealDtoStaxEventItemReader,
             ItemWriter<AptDealDto> aptDealWriter
     ) {
@@ -115,6 +115,8 @@ public class AptDealInsertJobConfig {
             @Value("#{jobParameters['yearMonth']}") String yearMonth,
             Jaxb2Marshaller aptDealDtoMarshaller
     ) throws MalformedURLException {
+        System.out.println("=========데이터를 읽습니다==========");
+
         return new StaxEventItemReaderBuilder<AptDealDto>()
                 .name("aptDealResourceReader")
                 .resource(apartmentApiResource.getResource(guLawdCd, YearMonth.parse(yearMonth)))
