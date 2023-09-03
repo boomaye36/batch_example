@@ -30,4 +30,8 @@ external:
     path: http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade
     service-key: 37qzzcKBj%2BgsWiOEqPxeQ8GY%2FHPNZPrIyt3tcqsXv9Uux%2F7ITF5jmMGEIG99xTT%2BOyBo%2BEtC08sxcCBDWqR44A%3D%3D
 
+    #service-key: mtNHd1TPrwVslEioz6hLex0aJ9QstpNgLvMNwWhjmHrOAaZYWyCBAvwWOjetdxziNMdUeYx1bSokmD2hKStLaA%3D%3D
+
+
+
 

@@ -1,5 +1,6 @@
 package com.example.spring_batch_ex.job.notify;
 
+import com.example.spring_batch_ex.adapter.EmailSendService;
 import com.example.spring_batch_ex.core.entity.AptNotification;
 import com.example.spring_batch_ex.core.repository.AptNotificationRepository;
 import com.example.spring_batch_ex.core.repository.LawdRepository;
@@ -20,6 +21,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,10 +50,10 @@ public class AptNotificationJobConfig {
 
     @Bean
     @JobScope
-    public Step aptNotificationStep(
-            RepositoryItemReader<AptNotification> aptNotificationRepositoryItemReader,
-            ItemProcessor<AptNotification, NotificationDto> aptNotificationProcessor,
-            ItemWriter<NotificationDto> aptNotificationWriter
+
+    public Step aptNotificationStep(RepositoryItemReader<AptNotification> aptNotificationRepositoryItemReader,
+                                    ItemProcessor<AptNotification, NotificationDto> aptNotificationProcessor,
+                                    ItemWriter<NotificationDto> aptNotificationWriter
     ) {
         return stepBuilderFactory.get("aptNotificationStep")
                 .<AptNotification, NotificationDto>chunk(10)
@@ -59,13 +61,13 @@ public class AptNotificationJobConfig {
                 .processor(aptNotificationProcessor)
                 .writer(aptNotificationWriter)
                 .build();
+
     }
 
     @Bean
     @StepScope
-    public RepositoryItemReader<AptNotification> aptNotificationRepositoryItemReader(
-            AptNotificationRepository aptNotificationRepository) {
-        return new RepositoryItemReaderBuilder<AptNotification>()
+    public RepositoryItemReader<AptNotification> aptNotificationRepositoryItemReader(AptNotificationRepository aptNotificationRepository) {
+        RepositoryItemReader<AptNotification> build = new RepositoryItemReaderBuilder<AptNotification>()
                 .name("aptNotificationRepositoryItemReader")
                 .repository(aptNotificationRepository)
                 .methodName("findByEnabledIsTrue")
@@ -73,21 +75,28 @@ public class AptNotificationJobConfig {
                 .arguments(Arrays.asList())
                 .sorts(Collections.singletonMap("aptNotificationId", Sort.Direction.DESC))
                 .build();
+        return build;
     }
 
     @Bean
     @StepScope
+
     public ItemProcessor<AptNotification, NotificationDto> aptNotificationProcessor(
             @Value("#{jobParameters['dealDate']}") String dealDate,
             AptDealService aptDealService,
             LawdRepository lawdRepository
     ) {
         return aptNotification -> {
-            String guName = lawdRepository.findByLawdCd(aptNotification.getGuLawdCd() + "00000")
-                    .orElseThrow().getLawdDong();
             List<AptDto> aptDtoList = aptDealService.findByGuLawdCdAndDealDate(aptNotification.getGuLawdCd(), LocalDate.parse(dealDate));
 
-            if (aptDtoList.isEmpty()) return null;
+            if (aptDtoList.isEmpty()) {
+
+                return null;
+            }
+
+            String guName = lawdRepository.findByLawdCd(aptNotification.getGuLawdCd() + "00000")
+                    .orElseThrow().getLawdDong();
+
             return NotificationDto.builder()
                     .email(aptNotification.getEmail())
                     .guName(guName)
@@ -97,11 +106,13 @@ public class AptNotificationJobConfig {
         };
     }
 
-    @StepScope
     @Bean
-    public ItemWriter<NotificationDto> aptNotificationWriter() {
+    @StepScope
+
+    public ItemWriter<NotificationDto> aptNotificationWriter(EmailSendService emailSendService) {
+        System.out.println("======writer=====");
         return items -> {
-            items.forEach(System.out::println);
+            items.forEach(item -> emailSendService.send(item.getEmail(), item.toMessage()));
         };
     }
 }
